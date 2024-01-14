@@ -33,6 +33,17 @@ You need to use a proxy in front of it (like nginx) to redirect to the exposed p
 To find the mapped port for port 80 just check the "Internal Endpoints" of the service "wordpress"
 or run `kubectl get svc` from the shell of the server running the cluster.
 
+You also need to do some changes in the configuration file of the wordpress otherwise the wordpress website is not displayed correctly. 
+In `/var/www/html/wp-config.php` add
+
+* `define('WP_HOME', 'https://' . $_SERVER['SERVER_NAME']);`
+* `define('WP_SITEURL', 'https://' . $_SERVER['SERVER_NAME']);`
+* `define('FORCE_SSL_ADMIN', true);`
+
+Unfortunatelly, the changes in `General Settings` for `WordPress Address (URL)` and `Site Address (URL)` are not an equivalent of the defines in wp-config.php.
+
+These changes assume that you will access the wordpress website using HTTPS.
+
 ## Enable ssh in wordpress server
 
 Connect inside of the wordpress pod (not the wordpress-mysql pod).
