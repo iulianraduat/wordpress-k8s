@@ -55,7 +55,7 @@ Then install sshd with `apt-get install openssh-server`.
 
 Now instruct sshd to accept root by editing `/etc/ssh/sshd_config` and adding/changing PermitRootLogin to `PermitRootLogin yes`.
 
-To be able to connect you need to know the root's password so reset it with `password root`.
+To be able to connect you need to know the root's password so reset it with `passwd root`.
 
 Restart the sshd service with `service ssh restart` and exit the shell.
 
