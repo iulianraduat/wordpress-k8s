@@ -39,6 +39,8 @@ In `/var/www/html/wp-config.php` add
 * `define('WP_HOME', 'https://' . $_SERVER['SERVER_NAME']);`
 * `define('WP_SITEURL', 'https://' . $_SERVER['SERVER_NAME']);`
 * `define('FORCE_SSL_ADMIN', true);`
+* `/* Turn HTTPS 'on' if HTTP_X_FORWARDED_PROTO contains 'https' */`
+* `if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false) { $_SERVER['HTTPS'] = 'on'; }`
 
 Unfortunatelly, the changes in `General Settings` for `WordPress Address (URL)` and `Site Address (URL)` are not an equivalent of the defines in wp-config.php.
 
@@ -46,20 +48,8 @@ These changes assume that you will access the wordpress website using HTTPS.
 
 ## Enable ssh in wordpress server
 
-Connect inside of the wordpress pod (not the wordpress-mysql pod).
-For that you need first to find its name with `kubectl get pods | grep wordpress`.
-Execute the following command: `kubectl exec --stdin --tty wordpress-<RANDOM> -- /bin/bash` where RANDOM is the key for your wordpress pod.
+Change the root password in `install-sshd-in-pod.sh` and then run it.
 
-Once inside, execute `apt-get update` to update the package repository.
-Then install sshd with `apt-get install openssh-server`.
-
-Now instruct sshd to accept root by editing `/etc/ssh/sshd_config` and adding/changing PermitRootLogin to `PermitRootLogin yes`.
-
-To be able to connect you need to know the root's password so reset it with `passwd root`.
-
-Restart the sshd service with `service ssh restart` and exit the shell.
-
-Enable the service for the port 22 in `wordpress-deployment.yaml` file and re-apply the deployment with `kubectl apply -k .`.
 Afterwards run `kubectl get svc | grep wordpress` to find the port mapped to internal port 22.
 
-Now you can connect via ssh using `root@IP_NODE:MAPPE_PORT_22:/` and the password you set above.
+Now you can connect via ssh using `root@IP_NODE:MAPPED_PORT_22:/` and the password you set above.
