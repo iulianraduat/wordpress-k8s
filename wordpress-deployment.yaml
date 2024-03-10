@@ -9,9 +9,9 @@ spec:
     - name: "80"
       port: 80
       targetPort: 80
-#    - name: "22"
-#      port: 22
-#      targetPort: 22
+      - name: "22"
+        port: 22
+        targetPort: 22
   selector:
     app: wordpress
     tier: frontend
@@ -50,25 +50,38 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: wordpress:6.2.1-apache
-        name: wordpress
-        env:
-        - name: WORDPRESS_DB_HOST
-          value: wordpress-mysql
-        - name: WORDPRESS_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: wordpress-mysql-password
-              key: password
-        - name: WORDPRESS_DB_USER
-          value: wordpress
-        ports:
-        - containerPort: 80
+        - image: wordpress:6.2.1-apache
           name: wordpress
-        volumeMounts:
-        - name: wordpress-persistent-storage
-          mountPath: /var/www/html
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: wordpress-mysql
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-mysql-password
+                  key: password
+            - name: WORDPRESS_DB_USER
+              value: wordpress
+          ports:
+            - containerPort: 80
+              name: wordpress
+          volumeMounts:
+            - name: wordpress-persistent-storage
+              mountPath: /var/www/html
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/bash
+                  - "-c"
+                  - >
+                    apt-get update;
+                    apt-get install -y openssh-server;
+                    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config;
+                    service ssh restart;
+                    systemctl enable ssh;
+                    (echo -e "toor\ntoor" | passwd root);
       volumes:
-      - name: wordpress-persistent-storage
-        persistentVolumeClaim:
-          claimName: wordpress-pvc
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: wordpress-pvc

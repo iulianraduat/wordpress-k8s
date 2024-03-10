@@ -53,3 +53,5 @@ Change the root password in `install-sshd-in-pod.sh` and then run it.
 Afterwards run `kubectl get svc | grep wordpress` to find the port mapped to internal port 22.
 
 Now you can connect via ssh using `root@IP_NODE:MAPPED_PORT_22:/` and the password you set above.
+
+⚠️ By default, the installation of `ssh server` is part of deployment (see `lifecycle`) and `root` has the password `toor`.
